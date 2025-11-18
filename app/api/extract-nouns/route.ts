@@ -12,6 +12,14 @@ export async function POST(request: Request) {
       )
     }
 
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('OPENAI_API_KEY is not set')
+      return NextResponse.json(
+        { error: 'OpenAI API key not configured' },
+        { status: 500 }
+      )
+    }
+
     const openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     })
@@ -56,8 +64,9 @@ Tasks:
     return NextResponse.json(parsed)
   } catch (error) {
     console.error('Error extracting nouns:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { error: 'Failed to extract nouns' },
+      { error: 'Failed to extract nouns', details: errorMessage },
       { status: 500 }
     )
   }
