@@ -1,0 +1,65 @@
+import { NextResponse } from 'next/server'
+import OpenAI from 'openai'
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+})
+
+export async function POST(request: Request) {
+  try {
+    const { dreamText } = await request.json()
+
+    if (!dreamText || typeof dreamText !== 'string') {
+      return NextResponse.json(
+        { error: 'Dream text is required' },
+        { status: 400 }
+      )
+    }
+
+    const systemPrompt = 'You are a helpful NLP tool. Extract all nouns from the dream text. Return structured JSON only.'
+
+    const userPrompt = `Text: ${dreamText}
+
+Tasks:
+
+1. Identify every noun in the text.
+2. Deduplicate identical nouns.
+3. Return JSON exactly in this format:
+
+{
+  "nouns": [
+    {
+      "token": "mountain",
+      "occurrences": [
+        { "start": 12, "end": 20 }
+      ]
+    }
+  ]
+}`
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      temperature: 0.3,
+      response_format: { type: 'json_object' },
+    })
+
+    const result = completion.choices[0].message.content
+    if (!result) {
+      throw new Error('No response from OpenAI')
+    }
+
+    const parsed = JSON.parse(result)
+    return NextResponse.json(parsed)
+  } catch (error) {
+    console.error('Error extracting nouns:', error)
+    return NextResponse.json(
+      { error: 'Failed to extract nouns' },
+      { status: 500 }
+    )
+  }
+}
+
