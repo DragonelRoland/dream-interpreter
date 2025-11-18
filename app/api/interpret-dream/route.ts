@@ -55,7 +55,7 @@ Requirements:
 5. "poem": Write a short poem (4-8 lines) based on the dream's emotional landscape and symbolism.`
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o',
+      model: 'gpt-5-mini-2025-08-07',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },

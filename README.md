@@ -18,7 +18,7 @@ A web application that helps users explore and interpret their dreams using AI-p
 - TypeScript
 - React 18
 - TailwindCSS (dark mode only)
-- OpenAI API (GPT-4)
+- OpenAI API (gpt-5-mini-2025-08-07)
 
 ## Getting Started
 
