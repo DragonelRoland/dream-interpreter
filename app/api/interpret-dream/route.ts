@@ -1,10 +1,6 @@
 import { NextResponse } from 'next/server'
 import OpenAI from 'openai'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
-
 type Association = {
   original: string
   replacement: string
@@ -20,6 +16,10 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
+
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    })
 
     const systemPrompt = `You are an empathic dream interpreter with a psychologically grounded, gentle tone. Assume all figures and elements in the dream represent inner parts of the dreamer. Provide multiple perspectives without making absolute claims.`
 

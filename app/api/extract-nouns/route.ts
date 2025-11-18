@@ -1,10 +1,6 @@
 import { NextResponse } from 'next/server'
 import OpenAI from 'openai'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
-
 export async function POST(request: Request) {
   try {
     const { dreamText } = await request.json()
@@ -15,6 +11,10 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
+
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    })
 
     const systemPrompt = 'You are a helpful NLP tool. Extract all nouns from the dream text. Return structured JSON only.'
 
