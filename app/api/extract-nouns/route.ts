@@ -31,18 +31,11 @@ export async function POST(request: Request) {
 Tasks:
 
 1. Identify every noun in the text.
-2. Deduplicate identical nouns.
+2. Return a deduplicated list of nouns.
 3. Return JSON exactly in this format:
 
 {
-  "nouns": [
-    {
-      "token": "mountain",
-      "occurrences": [
-        { "start": 12, "end": 20 }
-      ]
-    }
-  ]
+  "nouns": ["mountain", "brother", "path", "summit"]
 }`
 
     const completion = await openai.chat.completions.create({
@@ -51,7 +44,6 @@ Tasks:
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
-      temperature: 0.3,
       response_format: { type: 'json_object' },
     })
 
@@ -61,7 +53,28 @@ Tasks:
     }
 
     const parsed = JSON.parse(result)
-    return NextResponse.json(parsed)
+    const nounsArray = parsed.nouns || []
+    
+    // Find positions for each noun using JavaScript
+    const nounsWithPositions = nounsArray.map((token: string) => {
+      const occurrences: Array<{ start: number; end: number }> = []
+      const regex = new RegExp(`\\b${token}\\b`, 'gi')
+      let match
+      
+      while ((match = regex.exec(dreamText)) !== null) {
+        occurrences.push({
+          start: match.index,
+          end: match.index + match[0].length,
+        })
+      }
+      
+      return {
+        token,
+        occurrences,
+      }
+    }).filter((noun: any) => noun.occurrences.length > 0)
+    
+    return NextResponse.json({ nouns: nounsWithPositions })
   } catch (error) {
     console.error('Error extracting nouns:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
